@@ -13,6 +13,19 @@
         list-style: none;
         margin: 0;
         padding: 0;
+        width: 200px;
+      }
+      li {
+        clear: both;
+      }
+      li button {
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
       }
     </style>
   </head>
@@ -29,11 +42,17 @@
           data-id="{{d.id}}"
           class="check-completed"
           type="checkbox"
-          {% if d.completed %}
+          {%
+          if
+          d.completed
+          %}
           checked
-          {% endif %}
+          {%
+          endif
+          %}
         />
         {{d.description}}
+        <button data-id="{{d.id}}" class="cross">&cross;</button>
       </li>
       {% endfor %}
     </ul>
@@ -60,6 +79,27 @@
             });
         };
       }
+
+      let cross = document.querySelectorAll(".cross");
+      console.log(cross);
+      for (let i = 0; i < cross.length; i++) {
+        const c = cross[i];
+        c.onclick = function (e) {
+          console.log("clicked", e);
+          const todoId = e.target.dataset.id;
+          fetch(`/todos/delete/${todoId}`, {
+            method: "DELETE",
+          })
+            .then(() => {
+              e.target.parentNode.remove();
+              document.getElementById("error").className = "hidden";
+            })
+            .catch((err) => {
+              document.getElementById("error").className = "";
+            });
+        };
+      }
+
       document.getElementById("form").onsubmit = function (e) {
         e.preventDefault();
         fetch("/todos/create", {
